@@ -1,0 +1,10 @@
+<solver>
+    <solutionClass>domain.KnapsackSolution</solutionClass>
+    <entityClass>domain.KnapsackItem</entityClass>
+    <scoreDirectorFactory>
+        <constraintProviderClass>constraints.define_constraints</constraintProviderClass>
+    </scoreDirectorFactory>
+    <termination>
+        <secondsSpentLimit>30</secondsSpentLimit>
+    </termination>
+</solver>
