@@ -27,24 +27,29 @@ class Technician:
 class Workstation:
     id: int
     name: str
+    supported_device_types: set
 
-    def __init__(self, id, name):
+    def __init__(self, id, name, supported_device_types):
         self.id = id
         self.name = name
+        self.supported_device_types = supported_device_types
 
     @planning_id
     def get_id(self):
         return self.id
 
+    def supports_device_type(self, device_type):
+        return device_type in self.supported_device_types
+
     def __str__(self):
-        return f"Workstation(id={self.id}, name={self.name})"
+        return f"Workstation(id={self.id}, name={self.name}, supported_device_types={self.supported_device_types})"
 
 @problem_fact
 class Timeslot:
     id: int
     day_of_week: str
-    start_time: datetime.time
-    end_time: datetime.time
+    start_time: time
+    end_time: time
 
     def __init__(self, id, day_of_week, start_time, end_time):
         self.id = id
@@ -69,13 +74,15 @@ class Timeslot:
 class Device:
     id: int
     name: str
+    type: str
     technician: Technician
     workstation: Workstation
     timeslot: Timeslot
 
-    def __init__(self, id, name, technician=None, workstation=None, timeslot=None):
+    def __init__(self, id, name, type, technician=None, workstation=None, timeslot=None):
         self.id = id
         self.name = name
+        self.type = type
         self.technician = technician
         self.workstation = workstation
         self.timeslot = timeslot
@@ -110,6 +117,7 @@ class Device:
             f"Device("
             f"id={self.id}, "
             f"name={self.name}, "
+            f"type={self.type}, "
             f"technician={self.technician}, "
             f"workstation={self.workstation}, "
             f"timeslot={self.timeslot}"
@@ -168,6 +176,7 @@ class DeviceSchedule:
             f")"
         )
 
+# Function to generate a problem instance
 def generate_problem():
     timeslot_list = [
         Timeslot(i, day, time(hour), time(hour + 1))
@@ -176,25 +185,25 @@ def generate_problem():
         )
     ]
     technician_list = [
-        Technician(1, "Technician 1"),
-        Technician(2, "Technician 2"),
-        Technician(3, "Technician 3")
+        Technician(1, "John"),
+        Technician(2, "Doe"),
+        Technician(3, "Smith")
     ]
     workstation_list = [
-        Workstation(1, "Workstation 1"),
-        Workstation(2, "Workstation 2"),
-        Workstation(3, "Workstation 3")
+        Workstation(1, "WS1", {"type1"}),
+        Workstation(2, "WS2", {"type2"}),
+        Workstation(3, "WS3", {"type1", "type2"})
     ]
     device_list = [
-        Device(1, "Device 1"),
-        Device(2, "Device 2"),
-        Device(3, "Device 3"),
-        Device(4, "Device 4"),
-        Device(5, "Device 5"),
-        Device(6, "Device 6"),
-        Device(7, "Device 7"),
-        Device(8, "Device 8"),
-        Device(9, "Device 9"),
-        Device(10, "Device 10")
+        Device(1, "Device1", "type1"),
+        Device(2, "Device2", "type1"),
+        Device(3, "Device3", "type2"),
+        Device(4, "Device4", "type2"),
+        Device(5, "Device5", "type1"),
+        Device(6, "Device6", "type1"),
+        Device(7, "Device7", "type2"),
+        Device(8, "Device8", "type2"),
+        Device(9, "Device9", "type1"),
+        Device(10, "Device10", "type2")
     ]
     return DeviceSchedule(timeslot_list, technician_list, workstation_list, device_list)

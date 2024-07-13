@@ -43,6 +43,16 @@ def print_schedule(schedule: DeviceSchedule):
                 out += "{:<10}".format(reduce(lambda a, b: a + "," + b,
                                               map(lambda t: t.workstation.name, tech_tasks)))[0:10] + " | "
         print(out)
+        out = "|            | "
+        for tech in technician_list:
+            tasks = slot_task_map.get(slot, [])
+            tech_tasks = [task for task in tasks if task.technician == tech]
+            if len(tech_tasks) == 0:
+                out += "           | "
+            else:
+                out += "{:<10}".format(reduce(lambda a, b: a + "," + b,
+                                              map(lambda t: t.type, tech_tasks)))[0:10] + " | "
+        print(out)
         print("|" + ("------------|" * (len(technician_list) + 1)))
     unassigned_tasks = list(
         filter(lambda unassigned_task: unassigned_task.timeslot is None or unassigned_task.technician is None or unassigned_task.workstation is None,
@@ -53,7 +63,7 @@ def print_schedule(schedule: DeviceSchedule):
         for task in unassigned_tasks:
             technician_name = task.technician.name if task.technician else "No Technician"
             workstation_name = task.workstation.name if task.workstation else "No Workstation"
-            print(f" {task.name} - {technician_name} - {workstation_name}")
+            print(f" {task.name} - {technician_name} - {workstation_name} - {task.type}")
 
 solver_config = SolverConfig().withEntityClasses(Device) \
     .withSolutionClass(DeviceSchedule) \

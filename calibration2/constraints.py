@@ -9,6 +9,7 @@ def define_constraints(constraint_factory: ConstraintFactory):
         # Hard constraints
         technician_conflict(constraint_factory),
         workstation_conflict(constraint_factory),
+        workstation_capacity(constraint_factory),
         # Soft constraints
         minimize_completion_time(constraint_factory)
     ]
@@ -31,9 +32,16 @@ def workstation_conflict(constraint_factory: ConstraintFactory):
         .join(Device,
               Joiners.equal(lambda device: device.timeslot),
               Joiners.equal(lambda device: device.workstation),
-              Joiners.equal(lambda device: device.id)
+              Joiners.less_than(lambda device: device.id)
               ) \
         .penalize("Workstation conflict", HardSoftScore.ONE_HARD)
+
+def workstation_capacity(constraint_factory: ConstraintFactory):
+    # A workstation can only support a device if it supports the device type.
+    return constraint_factory \
+        .for_each(Device) \
+        .filter(lambda device: not device.workstation.supports_device_type(device.type)) \
+        .penalize("Unsupported device type", HardSoftScore.ONE_HARD)
 
 def minimize_completion_time(constraint_factory: ConstraintFactory):
     # Prefer to finish all device services as early as possible.
@@ -41,13 +49,3 @@ def minimize_completion_time(constraint_factory: ConstraintFactory):
         .for_each(Device) \
         .reward("Minimize completion time", HardSoftScore.ONE_SOFT,
                 lambda device: device.timeslot.id)
-
-"""
-def minimize_completion_time(constraint_factory: ConstraintFactory):
-    # Prefer to finish all device services as early as possible.
-    return constraint_factory \
-        .for_each(Device) \
-        .reward("Minimize completion time", HardSoftScore.ONE_SOFT,
-                lambda device: device.timeslot.day_of_week * 24 * 60 + device.timeslot.start_time.hour * 60 + device.timeslot.start_time.minute)
-
-"""

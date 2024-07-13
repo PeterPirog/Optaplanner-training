@@ -31,7 +31,7 @@ def workstation_conflict(constraint_factory: ConstraintFactory):
         .join(Device,
               Joiners.equal(lambda device: device.timeslot),
               Joiners.equal(lambda device: device.workstation),
-              Joiners.less_than(lambda device: device.id)
+              Joiners.equal(lambda device: device.id)
               ) \
         .penalize("Workstation conflict", HardSoftScore.ONE_HARD)
 
